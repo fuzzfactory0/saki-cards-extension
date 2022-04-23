@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+ 
+  "name": "Saki Cards for Autotable",
+  "version": "0.1.0",
+  "description": "Adds an overlay to play Saki Mahjong Cards in Autotable. Very early prototype.",
+ 
+  "content_scripts": [{
+    "css": ["styles.css"],
+    "js": ["scripts.js"],
+    "matches": ["https://autotable.riichi.moe/*"]
+  }],
+  "web_accessible_resources": [{
+    "matches": ["https://autotable.riichi.moe/*"],
+    "resources": ["assets/*"]
+  }],
+  "icons": { 
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png" 
+  }
+}

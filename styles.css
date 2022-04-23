@@ -1,0 +1,232 @@
+/*
+#background {
+  position: absolute;
+  z-index: -90;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+}
+*/
+iframe {
+  position: absolute;
+  z-index: -100;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.iframe {
+  position: absolute;
+  z-index: -100;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-image: url("/assets/autotable.png");
+}
+
+#saki-player-hand {
+  position: absolute;
+  bottom: -12vh;
+  left: 1.5vw;
+  width: 56vw;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  display: grid;
+  grid-template-columns: 6.25vw 6.25vw 6.25vw 6.25vw 6.25vw 6.25vw 6.25vw 6.25vw 6.25vw;
+  transition-duration: 0.3s;
+  transition-property: bottom;
+}
+
+#saki-player-hand:hover {
+  bottom: 0px!important;
+}
+
+.opponent-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.opponent-hand {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
+  display: grid;
+  transition-duration: 0.3s;
+  transition-property: top left right;
+}
+
+#kamicha-player-hand {
+  top: 32vh;
+  left: -16vw;
+  width: 26vw;
+  grid-template-columns: 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw;
+  transform: rotate(90deg);
+}
+
+#toimen-player-hand {
+  top: -12vh;
+  left: 8vw;
+  width: 26vw;
+  grid-template-columns: 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw;
+  transform: rotate(180deg);
+}
+
+#shimocha-player-hand {
+  top: 42vh;
+  right: -16vw;
+  width: 26vw;
+  grid-template-columns: 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw 4vw;
+  transform: rotate(270deg);
+}
+
+.own-card {
+  z-index: 0;
+  width: 9vw;
+  height: 13vw;
+  position: relative;
+  top:0;
+  transition-duration: 0.3s;
+  transition-property: top, right, width, height;
+}
+
+.own-card:hover {
+  z-index: 100;
+  top: -30px;
+}
+
+.opponent-card {
+  position: relative;
+  z-index: -1;
+  width: 9vw;
+  height: 13vw;
+}
+
+.saki-card-img {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.card-actions {
+  z-index: 100;
+  width: 9vw;
+  position: relative;
+  bottom: 31px;
+  display: none;
+}
+
+/* Debug only property */
+.card-actions button {
+  height:35px;
+}
+
+.own-card:hover .card-actions {
+  display: flex; 
+}
+
+#big-card {
+  z-index: 100;
+  width: 45vh;
+  height: 65vh;
+  position: absolute;
+  top: 16vh;
+  left: 77vh;
+}
+
+.played-card {
+  z-index: 90;
+  display: none;
+  width: 22.5vh;
+  height: 32.5vh;
+  position: absolute;
+  transition-duration: 0.3s;
+  transition-property: top left right bottom;
+}
+
+.played-saki-card-img {
+  z-index: 90;
+  height: 100%;
+}
+
+#player-card {
+  bottom: 10vh;
+  right: 27vw;
+}
+
+#kamicha-card {
+  top: 25vh;
+  left: 14vw;
+}
+
+#toimen-card {
+  top: 2vh;
+  left: 27vw;
+}
+
+#shimocha-card {
+  top: 25vh;
+  right: 14vw;
+}
+
+#saki-sidebar {
+  position: absolute;
+  width: 12.2vw;
+  padding: 10px;
+  right: 0;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#game-controls {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+#join-controls, #saki-sidebar form {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
+#saki-sidebar label, #saki-sidebar h3, #saki-sidebar h2, #saki-sidebar p {
+  color: white;
+}
+
+#disclaimer {
+  margin-top: 50px;
+  opacity: 80%;
+}
+
+#saki-sidebar h3, #saki-sidebar h2 {
+  margin: 0 0 15px;
+}
+
+#saki-sidebar button {
+  margin-top: 10px;
+}
+
+@media screen and (max-width: 1366px) {
+  #saki-sidebar {
+    width: 14vw;
+  }
+  #saki-sidebar p {
+    font-size: 0.8rem;
+  }
+  #disclaimer {
+    margin-top: 40px;
+  }
+}
