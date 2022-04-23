@@ -1,5 +1,5 @@
 let main = document.getElementById('full');
-const wssURL = 'ws://localhost:5000/';
+const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
 
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
@@ -361,7 +361,7 @@ function receiveData(session) {
 //let messages;
 init = function() {
   callInterval = setInterval(() => {
-    fetch(`http://localhost:3000/session?sessionid=${sessionid}&playerid=${playerid}`, {
+    fetch(`${apiURL}/session?sessionid=${sessionid}&playerid=${playerid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -403,8 +403,9 @@ init = function() {
 }
 
 createRoom = () => {
-  fetch(`http://localhost:3000/session`, {
+  fetch(`${apiURL}/session`, {
     method: 'POST',
+    rejectUnauthorized: false,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -445,7 +446,7 @@ createRoom = () => {
 
 joinRoom = () => {
   // initialize websocket connection
-  fetch(`http://localhost:3000/join?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/join?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -482,7 +483,7 @@ activateButtons = () => {
   document.getElementById('join-controls').style.display = 'none';
   document.getElementById('game-controls').style.display = 'flex';
   document.getElementById("draw-button").addEventListener("click", () => {
-    fetch(`http://localhost:3000/draw?sessionid=${sessionid}&playerid=${playerid}`, {
+    fetch(`${apiURL}/draw?sessionid=${sessionid}&playerid=${playerid}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -511,7 +512,7 @@ activateButtons = () => {
 playCard = (card) => {
   let element = document.getElementById('big-saki-card-img');
   element.style.display = 'none';
-  fetch(`http://localhost:3000/play?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/play?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -542,7 +543,7 @@ playCard = (card) => {
 returnCard = (card) => {
   let element = document.getElementById('big-saki-card-img');
   element.style.display = 'none';
-  fetch(`http://localhost:3000/return?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/return?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -571,7 +572,7 @@ returnCard = (card) => {
 }
 
 revealTable = () => {
-  fetch(`http://localhost:3000/reveal?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/reveal?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -597,7 +598,7 @@ revealTable = () => {
 }
 
 resetTable = () => {
-  fetch(`http://localhost:3000/reset?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/reset?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
