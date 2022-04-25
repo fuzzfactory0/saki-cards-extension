@@ -7,7 +7,8 @@ Original game by Anton00, KlorofinMaster & DramaTheurgist
 ### Content
 1. [How to use](#how-to-use)
 2. [Installation](#installation)
-3. [Contact](#contact)
+3. [Updating](#updating)
+4. [Contact](#contact)
 
 ## How to use
 
@@ -72,6 +73,12 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 **In short:** Don't worry, this isn't really insecure (ironically), it's just so the extension can reach the server, which doesn't have a secure certificate.  
 
 **Long story:** The extension needs to communicate with a remote server which handles the rooms and the game flow, hosted in the Amazon Web Services cloud. Now, acquiring and setting up SSL certificates is a pain (so is registering an extension in the chrome web store, that's why you're installing it manually), so the extension communicates with the server through the regular HTTP protocol instead of HTTPS. Since autotable.riichi.moe is a secure website, Chrome doesn't like the fact that a secure website which was loaded through HTTPS is sending random HTTP requests, so the browser blocks those "mixed protocol requests" automatically by default. By allowing insecure content to reach that particular website, you're telling Chrome to ignore the fact that the extension is using a different protocol, and this is essential for the game to work.
+
+## Updating
+
+To update the extension to a new version, simply download the new version and replace the old files with the new. Then, either restart Chrome, or go to the extensions page, and click the reload button on the bottom right corner of the extension. 
+
+<img src="https://i.imgur.com/0pnczl7.png">
 
 ## Contact
 
