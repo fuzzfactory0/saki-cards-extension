@@ -66,6 +66,8 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 
 <img src="https://i.imgur.com/9nzippg.png">
 
+4. Reload autotable and you're ready to go!
+
 ### Why do all this? Why should I allow insecure content in the autotable website?
 **In short:** Don't worry, this isn't really insecure (ironically), it's just so the extension can reach the server, which doesn't have a secure certificate.  
 
