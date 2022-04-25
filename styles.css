@@ -162,6 +162,24 @@ iframe {
   right: 27vw;
 }
 
+.player-name {
+  position: absolute;
+  color: white;
+  text-shadow: 2px black;
+}
+
+#kamicha-name {
+  transform: rotate(90deg);
+}
+
+#toimen-name {
+  transform: rotate(180deg);
+}
+
+#shimocha-name {
+  transform: rotate(270deg);
+}
+
 #kamicha-card {
   top: 25vh;
   left: 14vw;
@@ -202,13 +220,16 @@ iframe {
   align-items: center;
 }
 
-#saki-sidebar label, #saki-sidebar h3, #saki-sidebar h2, #saki-sidebar p {
+#saki-sidebar label, #saki-sidebar h3, #saki-sidebar h2, #saki-sidebar h6, #saki-sidebar p {
   color: white;
 }
 
+.grey {
+  opacity: 70%!important;
+}
+
 #disclaimer {
-  margin-top: 50px;
-  opacity: 80%;
+  margin-top: 290px;
 }
 
 #saki-sidebar h3, #saki-sidebar h2 {
@@ -219,14 +240,19 @@ iframe {
   margin-top: 10px;
 }
 
+.seat-select {
+  /* position: absolute; */
+  display: none;
+}
+
 @media screen and (max-width: 1366px) {
   #saki-sidebar {
     width: 14vw;
   }
   #saki-sidebar p {
-    font-size: 0.8rem;
+    font-size: 0.8rem!important;
   }
   #disclaimer {
-    margin-top: 40px;
+    margin-top: 0;
   }
 }

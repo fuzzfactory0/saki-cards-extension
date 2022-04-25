@@ -8,10 +8,10 @@
   "content_scripts": [{
     "css": ["styles.css"],
     "js": ["scripts.js"],
-    "matches": ["https://autotable.riichi.moe/*"]
+    "matches": ["http://localhost:4200/*", "https://autotable.riichi.moe/*"]
   }],
   "web_accessible_resources": [{
-    "matches": ["https://autotable.riichi.moe/*"],
+    "matches": ["http://localhost:4200/*","https://autotable.riichi.moe/*"],
     "resources": ["assets/*"]
   }],
   "icons": { 
