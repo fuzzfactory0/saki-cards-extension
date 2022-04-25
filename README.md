@@ -73,4 +73,4 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 
 ## Contact
 
-Forward any questions or suggestions to @Fuzz#7915 on Discord. 
+Please forward any questions, suggestions, feedback, complaints or litigations to @Fuzz#7915 on Discord. 
