@@ -1,6 +1,6 @@
 let main = document.getElementById('full');
-//const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
-const apiURL = 'http://localhost:3000';
+const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
+//const apiURL = 'http://localhost:3000';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
 
