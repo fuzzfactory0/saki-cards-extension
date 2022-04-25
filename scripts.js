@@ -1,6 +1,7 @@
 let main = document.getElementById('full');
 const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
 //const apiURL = 'http://localhost:3000';
+const EXT_VERSION = '2';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
 
@@ -9,7 +10,7 @@ document.onkeyup = hideBigCard;
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO                                                                                     TODO
-//TODO                          let the room admin arrange seats                           TODO
+//TODO                          special case for the double card                           TODO
 //TODO              the game is playable as long as all of this is implemented             TODO
 //TODO                                                                                     TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
@@ -29,7 +30,7 @@ let arrangeMode = false;
 let html = `
   <div id="saki-sidebar">
     <h2>Saki Cards</h2>
-    <h3 id="room-number"></h3>
+    <h3 id="room-number" style="user-select: auto;"></h3>
     <h6 id="room-admin"></h6>
     <div id="game-controls">
       <div class="mt-2 d-flex" style="width:100%;">
@@ -61,7 +62,6 @@ let html = `
 
       <p id="disclaimer"><!--Very early alpha. This code is so jank and fragile it will break as soon as you do something too fancy. Please be patient-->
         <p>Press shift while hovering over a card to zoom in.</p>
-        <p>Green button to play a card, red button to return it to the deck</p>
         <p class="grey">Developed by Umeboshi (Discord: @Fuzz#7915)</p>
         <p class="grey">Original game by Anton00, KlorofinMaster & DramaTheurgist</p>
         <p class="grey">Saki 咲 Fan Community</p>
@@ -114,6 +114,7 @@ let html = `
 
   <div id="player-card" class="played-card">
     <img id="player-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
+    <button id="flip-button" class="btn btn-success btn-sm w-100"><b>⮏</b></button>
   </div>
   <div id="kamicha-card" class="played-card">
     <img id="kamicha-img" class="played-saki-card-img" src="${chrome.runtime.getURL('assets/cardback.png')}" alt="" draggable="false">
@@ -280,6 +281,10 @@ document.getElementById("reveal-button").addEventListener("click", () => {
   revealTable();
 });
 
+document.getElementById("flip-button").addEventListener("click", () => {
+  flipCard();
+});
+
 document.getElementById("reset-button").addEventListener("click", () => {
   resetTable();
 });
@@ -349,9 +354,6 @@ function addCardListeners(card) {
 }
 
 function receiveData(session) {
-  console.log(document.getElementById('select-kamicha').value);
-  console.log(document.getElementById('select-toimen').value);
-  console.log(document.getElementById('select-shimocha').value);
   if (JSON.stringify(session) != JSON.stringify(sessionState)) {
     console.log(session);
     sessionid = session.id;
@@ -378,8 +380,17 @@ function receiveData(session) {
       document.getElementById('player-card').style.display = 'block';
       document.getElementById('player-img').src = chrome.runtime.getURL(`assets/${player.playedCard.name}.png`);
       document.getElementById('player-card').title = player.playedCard.name;
+      if (player.playedCard.name == "Shirouzu Mairu") {
+        document.getElementById('flip-button').style.display = 'block';
+        if (player.flippedOver) {
+          document.getElementById('player-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
+          document.getElementById('player-card').title = 'Tsuruta Himeko';
+        }
+      } else {
+        document.getElementById('flip-button').style.display = 'null';
+      }
       if (session.revealed) {
-        document.getElementById('player-img').style.filter = 'grayscale(0)';
+        document.getElementById('player-img').style.filter = null;
         document.getElementById('player-card').title = player.playedCard.name;
       } else {
         document.getElementById('player-img').style.filter = 'grayscale(1)';
@@ -454,6 +465,10 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('kamicha-card').title = thisPlayer.playedCard.name;
+          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
+            document.getElementById('kamicha-card').title = 'Tsuruta Himeko';
+          }
         } else {
           document.getElementById('kamicha-img').src = chrome.runtime.getURL('assets/cardback.png');
           document.getElementById('kamicha-card').title = 'cardback';
@@ -482,6 +497,10 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('toimen-card').title = thisPlayer.playedCard.name;
+          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
+            document.getElementById('toimen-card').title = 'Tsuruta Himeko';
+          }
         } else {
           document.getElementById('toimen-img').src = chrome.runtime.getURL('assets/cardback.png');
           document.getElementById('toimen-card').title = 'cardback';
@@ -510,6 +529,10 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('shimocha-card').title = thisPlayer.playedCard.name;
+          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
+            document.getElementById('shimocha-card').title = 'Tsuruta Himeko';
+          }
         } else {
           document.getElementById('shimocha-img').src = chrome.runtime.getURL('assets/cardback.png');
           document.getElementById('shimocha-card').title = 'cardback';
@@ -574,11 +597,11 @@ init = function() {
       }
       console.error('There was an error!', error);
     });
-  }, 500);
+  }, 1000);
 }
 
 createRoom = () => {
-  fetch(`${apiURL}/session`, {
+  fetch(`${apiURL}/session?version=${EXT_VERSION}`, {
     method: 'POST',
     rejectUnauthorized: false,
     headers: {
@@ -604,6 +627,11 @@ createRoom = () => {
       return Promise.reject(error);
     }
 
+    console.log(data);
+    if (data.alert == 'VERSION_MISMATCH') {
+      alert("You're using an outdated version of the extension! Please update to the latest version from the repo.");
+      return;
+    }
     document.getElementById('room-number').textContent = 'Room: ' + data.id;
     document.getElementById('room-admin').textContent = 'Admin: ' + data.owner;
     document.getElementById("reveal-button").style.display = 'block';
@@ -621,7 +649,7 @@ createRoom = () => {
 
 joinRoom = () => {
   // initialize websocket connection
-  fetch(`${apiURL}/join?sessionid=${sessionid}&playerid=${playerid}`, {
+  fetch(`${apiURL}/join?version=${EXT_VERSION}&sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -638,6 +666,10 @@ joinRoom = () => {
       return Promise.reject(error);
     }
 
+    if (data.alert == 'VERSION_MISMATCH') {
+      alert("You're using an outdated version of the extension! Please update to the latest version from the repo.");
+      return;
+    }
     document.getElementById('room-number').textContent = 'Room: ' + data.id;
     document.getElementById('room-admin').textContent = 'Admin: ' + data.owner;
     document.getElementById("reveal-button").style.display = 'none';
@@ -806,6 +838,32 @@ arrangeSeats = (seat, player) => {
     headers: {
       'Content-Type': 'application/json',
     },
+  })
+  .then(async response => {
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const data = isJson ? await response.json() : null;
+
+    // check for error response
+    if (!response.ok) {
+      // get error message from body or default to response status
+      const error = (data && data.message) || response.status;
+      return Promise.reject(error);
+    }
+    
+    receiveData(data);
+  })
+  .catch(error => {
+    //todo element.parentElement.innerHTML = `Error: ${error}`;
+    console.error('There was an error!', error);
+  });
+}
+
+flipCard = () => {
+  fetch(`${apiURL}/flip?sessionid=${sessionid}&playerid=${playerid}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    }
   })
   .then(async response => {
     const isJson = response.headers.get('content-type')?.includes('application/json');

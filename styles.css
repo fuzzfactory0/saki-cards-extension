@@ -30,10 +30,11 @@ iframe {
 }
 
 #saki-player-hand {
+  user-select: none;
   position: absolute;
   bottom: -12vh;
-  left: 1.5vw;
-  width: 56vw;
+  width: 0vw;
+  left: 30vw;
   margin-left: auto;
   margin-right: auto;
   justify-content: center;
@@ -48,6 +49,7 @@ iframe {
 }
 
 .opponent-area {
+  user-select: none;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -88,6 +90,7 @@ iframe {
 }
 
 .own-card {
+  user-select: none;
   z-index: 0;
   width: 9vw;
   height: 13vw;
@@ -103,6 +106,7 @@ iframe {
 }
 
 .opponent-card {
+  user-select: none;
   position: relative;
   z-index: -1;
   width: 9vw;
@@ -117,6 +121,7 @@ iframe {
 }
 
 .card-actions {
+  user-select: none;
   z-index: 100;
   width: 9vw;
   position: relative;
@@ -143,6 +148,7 @@ iframe {
 }
 
 .played-card {
+  user-select: none;
   z-index: 90;
   display: none;
   width: 22.5vh;
@@ -150,6 +156,13 @@ iframe {
   position: absolute;
   transition-duration: 0.3s;
   transition-property: top left right bottom;
+}
+
+#flip-button {
+  display: none;
+  position: absolute;
+  top: -30px;
+  width: 50px!important;
 }
 
 .played-saki-card-img {
@@ -163,6 +176,7 @@ iframe {
 }
 
 .player-name {
+  user-select: none;
   position: absolute;
   color: white;
   text-shadow: 2px black;
@@ -207,6 +221,7 @@ iframe {
 }
 
 #game-controls {
+  user-select: none;
   display: none;
   width: 100%;
   flex-direction: column;
@@ -214,6 +229,7 @@ iframe {
 }
 
 #join-controls, #saki-sidebar form {
+  user-select: none;
   display: flex;
   width: 100%;
   flex-direction: column;
@@ -221,6 +237,7 @@ iframe {
 }
 
 #saki-sidebar label, #saki-sidebar h3, #saki-sidebar h2, #saki-sidebar h6, #saki-sidebar p {
+  user-select: none;
   color: white;
 }
 
