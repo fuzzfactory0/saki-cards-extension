@@ -2,7 +2,7 @@
   "manifest_version": 3,
  
   "name": "Saki Cards for Autotable",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Adds an overlay to play Saki Mahjong Cards in Autotable. Very early prototype.",
  
   "content_scripts": [{

@@ -1,7 +1,9 @@
 let main = document.getElementById('full');
 const apiURL = 'http://ec2-54-147-176-194.compute-1.amazonaws.com:3000';
+const wssURL = 'ws://ec2-54-147-176-194.compute-1.amazonaws.com:3001'
 //const apiURL = 'http://localhost:3000';
-const EXT_VERSION = '2';
+//const wssURL = 'ws://localhost:3001';
+const EXT_VERSION = '3';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
 
@@ -10,8 +12,9 @@ document.onkeyup = hideBigCard;
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO                                                                                     TODO
-//TODO                          special case for the double card                           TODO
-//TODO              the game is playable as long as all of this is implemented             TODO
+//TODO                               option to quit the room                               TODO
+//TODO                        allow people to spectate the saki room                       TODO
+//TODO       ability for the host to put all the cards back into the deck automatically    TODO
 //TODO                                                                                     TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
@@ -26,6 +29,7 @@ let callInterval;
 let hiddenUI = false;
 let hiddenCards = false;
 let arrangeMode = false;
+let ws;
 
 let html = `
   <div id="saki-sidebar">
@@ -166,19 +170,22 @@ document.getElementById("hide-button").addEventListener("click", () => {
     pcard.style.right = '0vw';
     pcard.style.height = '31vh';
     
-    kcard.style.top = '61vh';
-    kcard.style.left = '32vw';
+    kcard.style.top = '57vh';
+    kcard.style.left = '34.5vw';
     kcard.style.height = '20vh';
+    kcard.style.width = '7vw';
     kcard.style.transform = 'rotate(90deg)';
 
-    tcard.style.top = '20vh';
-    tcard.style.left = '31.5vw';
+    tcard.style.top = '20.5vh';
+    tcard.style.left = '36vw';
     tcard.style.height = '20vh';
+    tcard.style.width = '7vw';
     tcard.style.transform = 'rotate(180deg)';
 
-    scard.style.top = '18.5vh';
-    scard.style.right = '32vw';
+    scard.style.top = '22.5vh';
+    scard.style.right = '34.5vw';
     scard.style.height = '20vh';
+    scard.style.width = '7vw';
     scard.style.transform = 'rotate(-90deg)';
   } else {
     playerHand.style.bottom = null;
@@ -193,16 +200,19 @@ document.getElementById("hide-button").addEventListener("click", () => {
     kcard.style.top = null;
     kcard.style.left = null;
     kcard.style.height = null;
+    kcard.style.width = null;
     kcard.style.transform = null;
 
     tcard.style.top = null;
     tcard.style.left = null;
     tcard.style.height = null;
+    tcard.style.width = null;
     tcard.style.transform = null;
 
     scard.style.top = null;
     scard.style.right = null;
     scard.style.height = null;
+    scard.style.width = null;
     scard.style.transform = null;
   }
   
@@ -212,16 +222,11 @@ document.getElementById("hide-cards-button").addEventListener("click", () => {
   hiddenCards = !hiddenCards;
 
   if (hiddenCards) {  
-    document.getElementById('player-img').style.display = 'none';
-    document.getElementById('kamicha-img').style.display = 'none';
-    document.getElementById('toimen-img').style.display = 'none';
-    document.getElementById('shimocha-img').style.display = 'none';
+    document.getElementById('hide-cards-button').textContent = 'Show cards';
   } else {
-    document.getElementById('player-img').style.display = 'block';
-    document.getElementById('kamicha-img').style.display = 'block';
-    document.getElementById('toimen-img').style.display = 'block';
-    document.getElementById('shimocha-img').style.display = 'block';
+    document.getElementById('hide-cards-button').textContent = 'Hide cards';
   }
+  receiveData(sessionState);
   
 });
 
@@ -305,7 +310,7 @@ const newCard = (name, parent) => {
   button1.type = 'button';
   button1.className = 'btn btn-success btn-sm w-100';
   button1.title = 'Play this card';
-  button1.textContent = '🡇';
+  button1.textContent = '✔️';
   button1.addEventListener("click", () => {
     //! handle play card if table is open
     playCard(name);
@@ -315,7 +320,7 @@ const newCard = (name, parent) => {
   button2.type = 'button';
   button2.className = 'btn btn-danger btn-sm w-100';
   button2.title = 'Shuffle back to deck';
-  button2.textContent = '🡅';
+  button2.textContent = '♻️';
   
   button2.addEventListener("click", () => {
     //! handle return card if table is open
@@ -349,12 +354,12 @@ function addCardListeners(card) {
   
   card.addEventListener("mouseout",function() {
     let element = document.getElementById('big-saki-card-img');
-    element.style.display = 'none';
+    element.style.display = null;
   });
 }
 
 function receiveData(session) {
-  if (JSON.stringify(session) != JSON.stringify(sessionState)) {
+  if (/*JSON.stringify(*/session/*) != JSON.stringify(sessionState)*/) {
     console.log(session);
     sessionid = session.id;
 
@@ -376,7 +381,7 @@ function receiveData(session) {
       });
     }
 
-    if (player.playedCard != null) {
+    if (player.playedCard != null  && !hiddenCards) {
       document.getElementById('player-card').style.display = 'block';
       document.getElementById('player-img').src = chrome.runtime.getURL(`assets/${player.playedCard.name}.png`);
       document.getElementById('player-card').title = player.playedCard.name;
@@ -460,7 +465,7 @@ function receiveData(session) {
     if (session.players.some(p => p.seat == kamicha)) {
       let thisPlayer = session.players.find(p => p.seat == kamicha);
       document.getElementById('kamicha-name').textContent = thisPlayer.nickname;
-      if (thisPlayer.playedCard != null) {
+      if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('kamicha-card').style.display = 'block';
         if (session.revealed) {
           document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
@@ -492,7 +497,7 @@ function receiveData(session) {
     if (session.players.some(p => p.seat == toimen)) {
       let thisPlayer = session.players.find(p => p.seat == toimen);
       document.getElementById('toimen-name').textContent = thisPlayer.nickname;
-      if (thisPlayer.playedCard != null) {
+      if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('toimen-card').style.display = 'block';
         if (session.revealed) {
           document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
@@ -524,7 +529,7 @@ function receiveData(session) {
     if (session.players.some(p => p.seat == shimocha)) {
       let thisPlayer = session.players.find(p => p.seat == shimocha);
       document.getElementById('shimocha-name').textContent = thisPlayer.nickname;
-      if (thisPlayer.playedCard != null) {
+      if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('shimocha-card').style.display = 'block';
         if (session.revealed) {
           document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
@@ -557,47 +562,38 @@ function receiveData(session) {
   }
 }
 
-init = function() {
-  callInterval = setInterval(() => {
-    fetch(`${apiURL}/session?sessionid=${sessionid}&playerid=${playerid}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(async response => {
-      const isJson = response.headers.get('content-type')?.includes('application/json');
-      const data = isJson ? await response.json() : null;
+init = function(sessionid, playerid) {
+  ws = new WebSocket(`${wssURL}/?sessionid=${sessionid}&playerid=${playerid}`);
+  ws.binaryType = 'arraybuffer';
 
-      // check for error response
-      if (!response.ok) {
-        // get error message from body or default to response status
-        const error = response.status || (data && data.message);
-        return Promise.reject(error);
-      }
+  ws.onopen = function() {
+    console.log('Connected to WSS');
+  };
 
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data) {
       receiveData(data);
-    })
-    .catch(error => {
-      //todo element.parentElement.innerHTML = `Error: ${error}`;
-      if (error == 404 || error == 500) {
-        clearInterval(callInterval);
-        
-        document.getElementById('join-controls').style.display = 'flex';
-        document.getElementById('game-controls').style.display = 'none';
-        document.getElementById('room-number').textContent = '';
-        document.getElementById('room-admin').textContent = '';
-
-        // todo todo todo todo todo todo todo todo todo todo todo todo todo
-        // todo todo todo todo todo todo todo todo todo todo todo todo todo
-        // todo     activate a reconnect button and add the logic      todo
-        // todo todo todo todo todo todo todo todo todo todo todo todo todo
-        // todo todo todo todo todo todo todo todo todo todo todo todo todo
-
-      }
+    }
+    else {
       console.error('There was an error!', error);
-    });
-  }, 1000);
+      ws.close();
+    }
+  };
+
+  ws.onclose = () => {
+    console.log('Disconnected from WSS');
+    document.getElementById('join-controls').style.display = 'flex';
+    document.getElementById('game-controls').style.display = 'none';
+    document.getElementById('room-number').textContent = '';
+    document.getElementById('room-admin').textContent = '';
+
+    // todo todo todo todo todo todo todo todo todo todo todo todo todo
+    // todo todo todo todo todo todo todo todo todo todo todo todo todo
+    // todo     activate a reconnect button and add the logic      todo
+    // todo todo todo todo todo todo todo todo todo todo todo todo todo
+    // todo todo todo todo todo todo todo todo todo todo todo todo todo
+  }
 }
 
 createRoom = () => {
@@ -637,7 +633,7 @@ createRoom = () => {
     document.getElementById("reveal-button").style.display = 'block';
     document.getElementById("reset-button").style.display = 'block';
     receiveData(data);
-    init();
+    init(data.id, playerid);
     
     activateButtons();
   })
@@ -678,7 +674,7 @@ joinRoom = () => {
     
     
     receiveData(data);
-    init();
+    init(data.id, playerid);
     
     activateButtons();
   })
@@ -720,7 +716,7 @@ activateButtons = () => {
 
 playCard = (card) => {
   let element = document.getElementById('big-saki-card-img');
-  element.style.display = 'none';
+  element.style.display = null;
   fetch(`${apiURL}/play?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {
@@ -751,7 +747,7 @@ playCard = (card) => {
 
 returnCard = (card) => {
   let element = document.getElementById('big-saki-card-img');
-  element.style.display = 'none';
+  element.style.display = null;
   fetch(`${apiURL}/return?sessionid=${sessionid}&playerid=${playerid}`, {
     method: 'POST',
     headers: {

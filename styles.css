@@ -9,24 +9,9 @@
   background: rgba(0, 0, 0, 0.7);
 }
 */
-iframe {
-  position: absolute;
-  z-index: -100;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-}
 
-.iframe {
-  position: absolute;
-  z-index: -100;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-size: cover;
-  background-image: url("/assets/autotable.png");
+* {
+  user-select: none!important;
 }
 
 #saki-player-hand {
@@ -121,6 +106,7 @@ iframe {
 }
 
 .card-actions {
+  grid-template-columns: 3fr 1fr;
   user-select: none;
   z-index: 100;
   width: 9vw;
@@ -131,11 +117,13 @@ iframe {
 
 /* Debug only property */
 .card-actions button {
-  height:35px;
+  height:31px;
+  font-size: 20px;
+  padding: 0;
 }
 
 .own-card:hover .card-actions {
-  display: flex; 
+  display: grid; 
 }
 
 #big-card {
@@ -145,6 +133,10 @@ iframe {
   position: absolute;
   top: 16vh;
   left: 77vh;
+}
+
+#big-saki-card-img {
+  display: none;
 }
 
 .played-card {
