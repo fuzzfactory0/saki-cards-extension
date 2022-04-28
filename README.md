@@ -47,7 +47,7 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 ## Installation 
 
 ### Install the chrome extension
-1. Download the source code ([from here](https://github.com/fuzzfactory0/saki-cards-extension/releases/tag/0.2.1))
+1. Download the source code ([from here](https://github.com/fuzzfactory0/saki-cards-extension/releases/tag/0.3.1))
 2. Extract the zip in any folder you want. Be aware that the code will need to stay there forever.
 3. Go to the [extensions page on Google Chrome](chrome://extensions/)
 4. Activate developer mode by hitting the switch in the upper right corner
