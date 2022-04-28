@@ -560,6 +560,7 @@ function receiveData(session) {
 
     sessionState = session;
   }
+  if (ws && ws.readyState == 1) ws.send(JSON.stringify({sessionid: sessionid, playerid: playerid}));
 }
 
 init = function(sessionid, playerid) {
@@ -583,16 +584,8 @@ init = function(sessionid, playerid) {
 
   ws.onclose = () => {
     console.log('Disconnected from WSS');
-    document.getElementById('join-controls').style.display = 'flex';
-    document.getElementById('game-controls').style.display = 'none';
-    document.getElementById('room-number').textContent = '';
-    document.getElementById('room-admin').textContent = '';
-
-    // todo todo todo todo todo todo todo todo todo todo todo todo todo
-    // todo todo todo todo todo todo todo todo todo todo todo todo todo
-    // todo     activate a reconnect button and add the logic      todo
-    // todo todo todo todo todo todo todo todo todo todo todo todo todo
-    // todo todo todo todo todo todo todo todo todo todo todo todo todo
+    alert('Disconnected from the room... Maybe your connection is unstable?');
+    resetView();
   }
 }
 
@@ -657,6 +650,11 @@ joinRoom = () => {
 
     // check for error response
     if (!response.ok) {
+      if (response.status == 404) {
+        alert('Room not found!');
+      } else if (response.status == 500) {
+        alert('There was an error... Please refresh and try again');
+      }
       // get error message from body or default to response status
       const error = (data && data.message) || response.status;
       return Promise.reject(error);
@@ -878,4 +876,12 @@ flipCard = () => {
     //todo element.parentElement.innerHTML = `Error: ${error}`;
     console.error('There was an error!', error);
   });
+}
+
+resetView = () => {
+  const p = sessionState.players.find(p => p.nickname == playerid);
+  p.hand = [];
+  p.playedCard = null;
+  sessionState.players = [p];
+  receiveData(sessionState);
 }
