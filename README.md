@@ -82,7 +82,9 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 
 ## Updating
 
-To update the extension to a new version, simply download the new version and replace the old files with the new. Then, either restart Chrome, or go to the extensions page, and click the reload button on the bottom right corner of the extension. 
+If you installed the extension from the web store, you don't need to do anything. It's automatic.
+
+Otherwise, to update the extension to a new version, simply download the new version and replace the old files with the new. Then, either restart Chrome, or go to the extensions page, and click the reload button on the bottom right corner of the extension. 
 
 <img src="https://i.imgur.com/0pnczl7.png">
 
