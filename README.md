@@ -46,10 +46,10 @@ Once the round is done (Tip: the "Hide cards" button will clear your view for ma
 
 ## Installation 
 
-### The easy way
+### The new easy way
 
 1. Download the extension from its [Chrome Web Store page](https://chrome.google.com/webstore/detail/saki-cards-for-autotable/eebhgnhgjddpmagdidepnfaelledhagp)
-2. Updates are automatically installed by Chrome
+2. You still need to do [this step though](#config-your-browser-so-its-able-to-reach-the-saki-cards-server) 
 3. That's it
 
 ### The old way (why would you ever want to do this again)
