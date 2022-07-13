@@ -647,6 +647,9 @@ createRoom = () => {
   .catch(error => {
     //todo element.parentElement.innerHTML = `Error: ${error}`;
     console.error('There was an error!', error);
+    if (error.message.includes('Failed to fetch')) {
+      alert('Failed to reach server\nCheck your internet connection and don\'t forget this step:\nhttps://github.com/fuzzfactory0/saki-cards-extension#config-your-browser-so-its-able-to-reach-the-saki-cards-server')
+    }
   });
 }
 
@@ -693,6 +696,9 @@ joinRoom = () => {
   .catch(error => {
     //todo element.parentElement.innerHTML = `Error: ${error}`;
     console.error('There was an error!', error);
+    if (error.message.includes('Failed to fetch')) {
+      alert('Failed to reach server\nCheck your internet connection and don\'t forget this step:\nhttps://github.com/fuzzfactory0/saki-cards-extension#config-your-browser-so-its-able-to-reach-the-saki-cards-server')
+    }
   });
 }
 
