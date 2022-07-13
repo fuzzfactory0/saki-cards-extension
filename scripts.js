@@ -28,77 +28,81 @@ let sessionState = '';
 let callInterval;
 let hiddenUI = false;
 let hiddenCards = false;
+let hiddenSidebar = false;
 let arrangeMode = false;
 let ws;
 
 let html = `
-  <div id="saki-sidebar">
-    <h2>Saki Cards</h2>
-    <h3 id="room-number" style="user-select: auto;"></h3>
-    <h6 id="room-admin"></h6>
-    <div id="game-controls">
-      <div class="mt-2 d-flex" style="width:100%;">
-        <button id="hide-button" class="btn btn-secondary btn-sm w-100" style="margin-right: 8px">Toggle UI</button>
-        <button id="hide-cards-button" class="btn btn-secondary btn-sm w-100" style="margin-right:0">Hide cards</button>
+  <div class="d-flex align-items-center" id="saki-sidebar-container">
+    <h2 class="text-light px-2" id="toggle-saki-sidebar">›</h2>
+    <div id="saki-sidebar">
+      <h2>Saki Cards</h2>
+      <h3 id="room-number" style="user-select: auto;"></h3>
+      <h6 id="room-admin"></h6>
+      <div id="game-controls">
+        <div class="mt-2 d-flex" style="width:100%;">
+          <button id="hide-button" class="btn btn-secondary btn-sm w-100" style="margin-right: 8px">Toggle UI</button>
+          <button id="hide-cards-button" class="btn btn-secondary btn-sm w-100" style="margin-right:0">Hide cards</button>
+        </div>
+        <button id="reveal-button" class="btn btn-warning btn-sm w-100">Reveal cards</button>
+        <button id="reset-button" class="btn btn-warning btn-sm w-100">New round</button>
+        <button id="draw-button" class="btn btn-warning btn-sm w-100">Draw 1</button>
+        <button id="arrange-button" class="btn btn-dark btn-sm w-100">Arrange seats</button>
+
+        <div class="mt-2 d-flex" style="width:100%;">
+          <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡄</h3>
+          <select id="select-kamicha" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
+          </select>
+        </div>
+
+        <div class="mt-2 d-flex" style="width:100%;">
+          <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡅</h3>
+          <select id="select-toimen" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
+          </select>
+        </div>
+
+        <div class="mt-2 d-flex" style="width:100%;">
+          <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡆</h3>
+          <select id="select-shimocha" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
+          </select>
+        </div>
+
+        <div id="disclaimer">
+          <p>Press shift while hovering over a card to zoom in.</p>
+          <p class="grey">Developed by Umeboshi (Discord: @Fuzz#7915)</p>
+          <p class="grey">Original game by Anton00, KlorofinMaster & DramaTheurgist</p>
+          <p class="grey">Saki 咲 Fan Community</p>
+        </div>
       </div>
-      <button id="reveal-button" class="btn btn-warning btn-sm w-100">Reveal cards</button>
-      <button id="reset-button" class="btn btn-warning btn-sm w-100">New round</button>
-      <button id="draw-button" class="btn btn-warning btn-sm w-100">Draw 1</button>
-      <button id="arrange-button" class="btn btn-dark btn-sm w-100">Arrange seats</button>
+      <div id="join-controls"> 
+        <h3>Create Room</h2>
+        <form id="create-form" autocomplete="off">
+          <select id="sanma-input" class="dark-select form-control form-control-sm mt-2">
+            <option value="false">Suuma</option>
+            <option value="true">Sanma</option>
+          </select>
+          <label for="admin-input">Nickname:</label>
+          <input type="text" id="admin-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9]{2,24}$" required></input>
+          <button id="create-button" type="button" class="btn btn-warning btn-sm w-100">CREATE</button>
+        </form>
 
-      <div class="mt-2 d-flex" style="width:100%;">
-        <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡄</h3>
-        <select id="select-kamicha" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
-        </select>
+        <h3>Join Room</h2>
+        <form id="join-form" autocomplete="off">
+          <label for="session-input">Room ID:</label>
+          <input type="tel" id="session-input" class="form-control form-control-sm" minlength=4 maxlength=4 required pattern="^[0-9]{2,24}$"></input>
+          <label for="nickname-input">Nickname:</label>
+          <input type="text" id="nickname-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9\-_]{2,24}$" required></input>
+          <button id="join-button" type="button" class="btn btn-warning btn-sm w-100">JOIN</button>
+        </form>
       </div>
-
-      <div class="mt-2 d-flex" style="width:100%;">
-        <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡅</h3>
-        <select id="select-toimen" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
-        </select>
-      </div>
-
-      <div class="mt-2 d-flex" style="width:100%;">
-        <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡆</h3>
-        <select id="select-shimocha" class="dark-select form-control form-control-sm mt-2 seat-select seat-select-element" style="display: none">
-        </select>
-      </div>
-
-      <p id="disclaimer"><!--Very early alpha. This code is so jank and fragile it will break as soon as you do something too fancy. Please be patient-->
-        <p>Press shift while hovering over a card to zoom in.</p>
-        <p class="grey">Developed by Umeboshi (Discord: @Fuzz#7915)</p>
-        <p class="grey">Original game by Anton00, KlorofinMaster & DramaTheurgist</p>
-        <p class="grey">Saki 咲 Fan Community</p>
-      </p>
-    </div>
-    <div id="join-controls"> 
-      <h3>Create Room</h2>
-      <form id="create-form" autocomplete="off">
-        <select id="sanma-input" class="dark-select form-control form-control-sm mt-2">
-          <option value="false">Suuma</option>
-          <option value="true">Sanma</option>
-        </select>
-        <label for="admin-input">Nickname:</label>
-        <input type="text" id="admin-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9]{2,24}$" required></input>
-        <button id="create-button" type="button" class="btn btn-warning btn-sm w-100">CREATE</button>
-      </form>
-
-      <h3>Join Room</h2>
-      <form id="join-form" autocomplete="off">
-        <label for="session-input">Room ID:</label>
-        <input type="tel" id="session-input" class="form-control form-control-sm" minlength=4 maxlength=4 required pattern="^[0-9]{2,24}$"></input>
-        <label for="nickname-input">Nickname:</label>
-        <input type="text" id="nickname-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9\-_]{2,24}$" required></input>
-        <button id="join-button" type="button" class="btn btn-warning btn-sm w-100">JOIN</button>
-      </form>
     </div>
   </div>
-  
+
   <div id="saki-player-hand" >
   </div>
 
   <div class="opponent-area">
-    <div id="kamicha-player-hand" class="opponent-hand" >
+    <div id="kamicha-player-hand" class="opponent-hand">
     </div>
 
     <div id="toimen-player-hand" class="opponent-hand">
@@ -218,53 +222,63 @@ document.getElementById("hide-button").addEventListener("click", () => {
   
 });
 
-document.getElementById("hide-cards-button").addEventListener("click", () => {
+document.getElementById("hide-cards-button").addEventListener("click", (event) => {
   hiddenCards = !hiddenCards;
 
   if (hiddenCards) {  
-    document.getElementById('hide-cards-button').textContent = 'Show cards';
+    event.target.textContent = 'Show cards';
   } else {
-    document.getElementById('hide-cards-button').textContent = 'Hide cards';
+    event.target.textContent = 'Hide cards';
   }
   receiveData(sessionState);
-  
 });
 
-document.getElementById("arrange-button").addEventListener("click", () => {
-  if (sessionState.players.length > 2) {
+document.getElementById("toggle-saki-sidebar").addEventListener("click", (event) => {
+  hiddenSidebar = !hiddenSidebar;
+  let container = document.getElementById('saki-sidebar-container');
+
+  if (hiddenSidebar) {  
+    container.style.right = '-220px';
+    event.target.textContent = '‹';
+  } else {
+    container.style.right = '0';
+    event.target.textContent = '›';
+  }  
+});
+
+document.getElementById("arrange-button").addEventListener("click", (event) => {
+  if (sessionState.players.length > 0) {
     if (arrangeMode) {
       arrangeMode = false;
       for (let element of document.getElementsByClassName('seat-select')) {
         element.style.display = 'none';
       }
-      let button = document.getElementById("arrange-button");
-      button.textContent = 'Arrange seats';
-      button.className = 'btn btn-dark btn-sm w-100';
+      event.target.textContent = 'Arrange seats';
+      event.target.className = 'btn btn-dark btn-sm w-100';
     } else {
       arrangeMode = true;
       
       for (let element of document.getElementsByClassName('seat-select')) {
         element.style.display = 'block';
       }
-      let button = document.getElementById("arrange-button");
-      button.textContent = 'Confirm';
-      button.className = 'btn btn-danger btn-sm w-100';
+      event.target.textContent = 'Confirm';
+      event.target.className = 'btn btn-danger btn-sm w-100';
     }
   }
 });
 
-document.getElementById("select-kamicha").addEventListener("change", () => {
-  let value = document.getElementById("select-kamicha").value;
+document.getElementById("select-kamicha").addEventListener("change", (event) => {
+  let value = event.target.value;
   if (value != null) arrangeSeats(4, value);
 });
 
-document.getElementById("select-toimen").addEventListener("change", () => {
-  let value = document.getElementById("select-toimen").value;
+document.getElementById("select-toimen").addEventListener("change", (event) => {
+  let value = event.target.value;
   if (value != null) arrangeSeats(3, value);
 });
 
-document.getElementById("select-shimocha").addEventListener("change", () => {
-  let value = document.getElementById("select-shimocha").value;
+document.getElementById("select-shimocha").addEventListener("change", (event) => {
+  let value = event.target.value;
   if (value != null) arrangeSeats(2, value);
 });
 
@@ -392,7 +406,7 @@ function receiveData(session) {
           document.getElementById('player-card').title = 'Tsuruta Himeko';
         }
       } else {
-        document.getElementById('flip-button').style.display = 'null';
+        document.getElementById('flip-button').style.display = 'none';
       }
       if (session.revealed) {
         document.getElementById('player-img').style.filter = null;

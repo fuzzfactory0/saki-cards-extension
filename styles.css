@@ -201,12 +201,27 @@
   right: 14vw;
 }
 
-#saki-sidebar {
+#saki-sidebar-container {
   position: absolute;
-  width: 12.2vw;
-  padding: 10px;
+  top: 0;
   right: 0;
-  top: 30px;
+  height: 100%;
+  background: rgba(30,30,30,.6);
+}
+
+#toggle-saki-sidebar {
+  cursor: pointer;
+}
+
+#toggle-saki-sidebar:hover {
+  color: grey!important;
+}
+
+#saki-sidebar {
+  width: 220px;
+  height: 100%;
+  margin-top: 60px;
+  padding: 1rem 1rem 1rem 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -218,6 +233,8 @@
   width: 100%;
   flex-direction: column;
   align-items: center;
+  flex-grow: 1;
+  margin-bottom: 10px;
 }
 
 #join-controls, #saki-sidebar form {
@@ -238,7 +255,7 @@
 }
 
 #disclaimer {
-  margin-top: 290px;
+  margin-top: auto;
 }
 
 #saki-sidebar h3, #saki-sidebar h2 {
