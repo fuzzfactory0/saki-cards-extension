@@ -69,7 +69,7 @@ let html = `
 
         <div id="disclaimer">
           <p>Press shift while hovering over a card to zoom in.</p>
-          <p class="grey">Developed by Umeboshi (Discord: @Fuzz#7915)</p>
+          <p class="grey">Developed by Umeboshi (Discord: @fuzzwasalreadytaken)</p>
           <p class="grey">Original game by Anton00, KlorofinMaster & DramaTheurgist</p>
           <p class="grey">Saki 咲 Fan Community</p>
         </div>
@@ -399,11 +399,11 @@ function receiveData(session) {
       document.getElementById('player-card').style.display = 'block';
       document.getElementById('player-img').src = chrome.runtime.getURL(`assets/${player.playedCard.name}.png`);
       document.getElementById('player-card').title = player.playedCard.name;
-      if (player.playedCard.name == "Shirouzu Mairu") {
+      if (player.playedCard.name == "Shirouzu_Mairu") {
         document.getElementById('flip-button').style.display = 'block';
         if (player.flippedOver) {
-          document.getElementById('player-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-          document.getElementById('player-card').title = 'Tsuruta Himeko';
+          document.getElementById('player-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
+          document.getElementById('player-card').title = 'Tsuruta_Himeko';
         }
       } else {
         document.getElementById('flip-button').style.display = 'none';
@@ -484,9 +484,9 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('kamicha-card').title = thisPlayer.playedCard.name;
-          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('kamicha-card').title = 'Tsuruta Himeko';
+          if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
+            document.getElementById('kamicha-card').title = 'Tsuruta_Himeko';
           }
         } else {
           document.getElementById('kamicha-img').src = chrome.runtime.getURL('assets/cardback.png');
@@ -516,9 +516,9 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('toimen-card').title = thisPlayer.playedCard.name;
-          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('toimen-card').title = 'Tsuruta Himeko';
+          if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
+            document.getElementById('toimen-card').title = 'Tsuruta_Himeko';
           }
         } else {
           document.getElementById('toimen-img').src = chrome.runtime.getURL('assets/cardback.png');
@@ -548,9 +548,9 @@ function receiveData(session) {
         if (session.revealed) {
           document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
           document.getElementById('shimocha-card').title = thisPlayer.playedCard.name;
-          if (thisPlayer.playedCard.name == "Shirouzu Mairu" && thisPlayer.flippedOver) {
-            document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/Tsuruta Himeko.png`);
-            document.getElementById('shimocha-card').title = 'Tsuruta Himeko';
+          if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
+            document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
+            document.getElementById('shimocha-card').title = 'Tsuruta_Himeko';
           }
         } else {
           document.getElementById('shimocha-img').src = chrome.runtime.getURL('assets/cardback.png');
