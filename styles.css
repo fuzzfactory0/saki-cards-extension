@@ -303,11 +303,12 @@
   margin: 0;
 }
 
-.spectator-controls {
+#spectator-controls {
+  width: 100%;
   justify-content: space-around;
 }
 
-.spectator-controls button {
+#spectator-controls button {
   width: 80px!important;
 }
 
