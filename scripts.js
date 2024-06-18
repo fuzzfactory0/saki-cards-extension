@@ -3,7 +3,7 @@ const apiURL = 'http://150.136.136.166:3000';
 const wssURL = 'ws://150.136.136.166:3001'
 //const apiURL = 'http://localhost:3000';
 //const wssURL = 'ws://localhost:3001';
-const EXT_VERSION = '3';
+const EXT_VERSION = '4';
 document.onkeydown = showBigCard;
 document.onkeyup = hideBigCard;
 
@@ -13,8 +13,7 @@ document.onkeyup = hideBigCard;
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO                                                                                     TODO
 //TODO                               option to quit the room                               TODO
-//TODO                        allow people to spectate the saki room                       TODO
-//TODO       ability for the host to put all the cards back into the deck automatically    TODO
+//TODO            try to remember what the fuck forceRotation and tenpaiRedraw are         TODO
 //TODO                                                                                     TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
 //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO //TODO TODO TODO TODO TODO TODO
@@ -24,6 +23,7 @@ document.onkeyup = hideBigCard;
 let sessionid = null;
 let playerid = '';
 let sanmaSelected = false;
+let isBetaSession = false;
 let sessionState = '';
 let callInterval;
 let hiddenUI = false;
@@ -31,6 +31,7 @@ let hiddenCards = false;
 let hiddenSidebar = false;
 let arrangeMode = false;
 let ws;
+let spectatorMode = false;
 
 let html = `
   <div class="d-flex align-items-center" id="saki-sidebar-container">
@@ -39,15 +40,21 @@ let html = `
       <h2>Saki Cards</h2>
       <h3 id="room-number" style="user-select: auto;"></h3>
       <h6 id="room-admin"></h6>
+      <h5 id="spectating-name"></h5>
       <div id="game-controls">
         <div class="mt-2 d-flex" style="width:100%;">
           <button id="hide-button" class="btn btn-secondary btn-sm w-100" style="margin-right: 8px">Toggle UI</button>
           <button id="hide-cards-button" class="btn btn-secondary btn-sm w-100" style="margin-right:0">Hide cards</button>
         </div>
+        <div id="spectator-controls" style="display: none;">
+          <button id="spectate-left" class="btn btn-warning btn-sm w-100">🡄</button>
+          <button id="spectate-right" class="btn btn-warning btn-sm w-100">🡆</button>
+        </div>
         <button id="reveal-button" class="btn btn-warning btn-sm w-100">Reveal cards</button>
         <button id="reset-button" class="btn btn-warning btn-sm w-100">New round</button>
         <button id="draw-button" class="btn btn-warning btn-sm w-100">Draw 1</button>
         <button id="arrange-button" class="btn btn-dark btn-sm w-100">Arrange seats</button>
+        <button id="return-all-cards" class="btn btn-danger btn-sm w-100">Return all cards</button>
 
         <div class="mt-2 d-flex" style="width:100%;">
           <h3 class="seat-select" style="display: none; margin: 6px 6px 0 0;">🡄</h3>
@@ -81,6 +88,10 @@ let html = `
             <option value="false">Suuma</option>
             <option value="true">Sanma</option>
           </select>
+          <div class="beta-field">
+            <label for="beta-input">Use beta cards?</label>
+            <input type="checkbox" id="beta-input">
+          </div>
           <label for="admin-input">Nickname:</label>
           <input type="text" id="admin-input" class="form-control form-control-sm" minlength=2 maxlength=24 pattern="^[a-zA-Z0-9]{2,24}$" required></input>
           <button id="create-button" type="button" class="btn btn-warning btn-sm w-100">CREATE</button>
@@ -155,10 +166,10 @@ for (let el of document.getElementsByName('input')) {
   });
 }
 
-addCardListeners(document.getElementById('player-card'));
-addCardListeners(document.getElementById('kamicha-card'));
-addCardListeners(document.getElementById('toimen-card'));
-addCardListeners(document.getElementById('shimocha-card'));
+addCardListeners(pcard);
+addCardListeners(kcard);
+addCardListeners(tcard);
+addCardListeners(scard);
 
 
 document.getElementById("hide-button").addEventListener("click", () => {
@@ -285,6 +296,7 @@ document.getElementById("select-shimocha").addEventListener("change", (event) =>
 document.getElementById("create-button").addEventListener("click", () => {  
   playerid = document.getElementById('admin-input').value;
   sanmaSelected = document.getElementById('sanma-input').value;
+  isBetaSession = document.getElementById('beta-input').checked;
   let form = document.getElementById('create-form');
   if (form.checkValidity() && playerid != '') createRoom();
 });
@@ -308,41 +320,47 @@ document.getElementById("reset-button").addEventListener("click", () => {
   resetTable();
 });
 
-const newCard = (name, parent) => {
+const getCardImgUrl = (card) => {
+  return card && (card.isBeta ? chrome.runtime.getURL('assets/beta/'+card.name+'.png') : chrome.runtime.getURL('assets/'+card.name+'.png'));
+}
 
+const newCard = (card, parent) => {
   let img = document.createElement('img');
-  img.src = chrome.runtime.getURL('assets/'+name+'.png');
+  img.src = getCardImgUrl(card);
   img.className = 'saki-card-img';
-  img.alt = name;
+  img.alt = card.name;
   img.draggable = false;
-
+  
   let div = document.createElement('div');
   div.className = 'card-actions';
-  div.title = name;
+  div.title = card.name;
 
-  let button1 = document.createElement('button');
-  button1.type = 'button';
-  button1.className = 'btn btn-success btn-sm w-100';
-  button1.title = 'Play this card';
-  button1.textContent = '✔️';
-  button1.addEventListener("click", () => {
-    //! handle play card if table is open
-    playCard(name);
-  });
+  if (!spectatorMode) {
+    let button1 = document.createElement('button');
+    button1.type = 'button';
+    button1.className = 'btn btn-success btn-sm w-100';
+    button1.title = 'Play this card';
+    button1.textContent = '✔️';
+    button1.addEventListener("click", () => {
+      //! handle play card if table is open
+      playCard(card.name);
+    });
 
-  let button2 = document.createElement('button');
-  button2.type = 'button';
-  button2.className = 'btn btn-danger btn-sm w-100';
-  button2.title = 'Shuffle back to deck';
-  button2.textContent = '♻️';
+    let button2 = document.createElement('button');
+    button2.type = 'button';
+    button2.className = 'btn btn-danger btn-sm w-100';
+    button2.title = 'Shuffle back to deck';
+    button2.textContent = '♻️';
+    
+    button2.addEventListener("click", () => {
+      //! handle return card if table is open
+      returnCard(card.name);
+    });
+
+    div.insertAdjacentElement('beforeend', button1);
+    div.insertAdjacentElement('beforeend', button2);
+  }
   
-  button2.addEventListener("click", () => {
-    //! handle return card if table is open
-    returnCard(name);
-  });
-
-  div.insertAdjacentElement('beforeend', button1);
-  div.insertAdjacentElement('beforeend', button2);
   parent.insertAdjacentElement('beforeend', div);
   parent.insertAdjacentElement('beforeend', img);
 }
@@ -359,14 +377,14 @@ function hideBigCard(e){
   }
 }
 
-function addCardListeners(card) {
-  card.addEventListener("mouseover",function() {
+function addCardListeners(cardElement, card) {
+  cardElement.addEventListener("mouseover",function() {
     let element = document.getElementById('big-saki-card-img');
     element.style.display = 'block';
-    element.src = chrome.runtime.getURL(`assets/${card.title}.png`);
+    element.src = getCardImgUrl(card);
   });
   
-  card.addEventListener("mouseout",function() {
+  cardElement.addEventListener("mouseout",function() {
     let element = document.getElementById('big-saki-card-img');
     element.style.display = null;
   });
@@ -378,26 +396,37 @@ function receiveData(session) {
     sessionid = session.id;
 
     let player = session.players.find(p => p.nickname == playerid);
+    if (spectatorMode) {
+      console.log('Spectator mode');
+      let spec = session.spectators.find(s => s.nickname == playerid);
+      player = session.players.find(p => p.seat == spec.seat);
+      
+      console.log('spec:', player, spec);
+      let specLabel = document.getElementById('spectating-name')
+      specLabel.innerHTML = 'Spectating: ' + player.nickname;
+      specLabel.style.display = 'block';
+    }
+
     let incomingHand = player.hand || [];
-    let currentHand = sessionState.players?.find(p => p.nickname == playerid).hand || [];
+    let currentHand = sessionState.players?.find(p => p.nickname == player.nickname).hand || [];
 
     let equal = incomingHand.length != currentHand.length ? false : JSON.stringify(incomingHand) == JSON.stringify(currentHand);
 
-    if (!equal) {  
+    if (!equal || spectatorMode) {  
       playerHand.textContent = '';
       incomingHand.forEach(card => {
         let newcard = document.createElement('div');
         newcard.title = card.name;
-        newcard.className = 'own-card';
-        newCard(card.name, newcard);
-        addCardListeners(newcard);
+        newcard.className = card.isBeta ? 'own-card own-card-beta' : 'own-card';
+        newCard(card, newcard);
+        addCardListeners(newcard, card);
         playerHand.insertAdjacentElement('beforeend', newcard);
       });
     }
 
     if (player.playedCard != null  && !hiddenCards) {
       document.getElementById('player-card').style.display = 'block';
-      document.getElementById('player-img').src = chrome.runtime.getURL(`assets/${player.playedCard.name}.png`);
+      document.getElementById('player-img').src = getCardImgUrl(player.playedCard);
       document.getElementById('player-card').title = player.playedCard.name;
       if (player.playedCard.name == "Shirouzu_Mairu") {
         document.getElementById('flip-button').style.display = 'block';
@@ -482,7 +511,7 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('kamicha-card').style.display = 'block';
         if (session.revealed) {
-          document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
+          document.getElementById('kamicha-img').src = getCardImgUrl(thisPlayer.playedCard);
           document.getElementById('kamicha-card').title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
             document.getElementById('kamicha-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
@@ -514,7 +543,7 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('toimen-card').style.display = 'block';
         if (session.revealed) {
-          document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
+          document.getElementById('toimen-img').src = getCardImgUrl(thisPlayer.playedCard);
           document.getElementById('toimen-card').title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
             document.getElementById('toimen-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
@@ -546,7 +575,7 @@ function receiveData(session) {
       if (thisPlayer.playedCard != null && !hiddenCards) {
         document.getElementById('shimocha-card').style.display = 'block';
         if (session.revealed) {
-          document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/${thisPlayer.playedCard.name}.png`);
+          document.getElementById('shimocha-img').src = getCardImgUrl(thisPlayer.playedCard);
           document.getElementById('shimocha-card').title = thisPlayer.playedCard.name;
           if (thisPlayer.playedCard.name == "Shirouzu_Mairu" && thisPlayer.flippedOver) {
             document.getElementById('shimocha-img').src = chrome.runtime.getURL(`assets/Tsuruta_Himeko.png`);
@@ -616,7 +645,8 @@ createRoom = () => {
       mode: "normal",
       length: "east",
       forcedRotation: false,
-      tenpaiRedraw: false
+      tenpaiRedraw: false,
+      betaSession: isBetaSession
     })
   })
   .then(async response => {
@@ -681,12 +711,18 @@ joinRoom = () => {
       alert("You're using an outdated version of the extension! Please update to the latest version from the repo.");
       return;
     }
+
+    if (data.spectatorMode) {
+      alert("You're spectating this match!");
+      spectatorMode = true;
+    }
+
     document.getElementById('room-number').textContent = 'Room: ' + data.id;
     document.getElementById('room-admin').textContent = 'Admin: ' + data.owner;
     document.getElementById("reveal-button").style.display = 'none';
     document.getElementById("reset-button").style.display = 'none';
     document.getElementById("arrange-button").style.display = 'none';
-    
+    document.getElementById("return-all-cards").style.display = 'none';
     
     receiveData(data);
     init(data.id, playerid);
@@ -705,31 +741,89 @@ joinRoom = () => {
 activateButtons = () => {
   document.getElementById('join-controls').style.display = 'none';
   document.getElementById('game-controls').style.display = 'flex';
-  document.getElementById("draw-button").addEventListener("click", () => {
-    fetch(`${apiURL}/draw?sessionid=${sessionid}&playerid=${playerid}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    })
-    .then(async response => {
-      const isJson = response.headers.get('content-type')?.includes('application/json');
-      const data = isJson ? await response.json() : null;
-  
-      // check for error response
-      if (!response.ok) {
-        // get error message from body or default to response status
-        const error = (data && data.message) || response.status;
-        return Promise.reject(error);
-      }
-  
-      receiveData(data);
-    })
-    .catch(error => {
-      //todo element.parentElement.innerHTML = `Error: ${error}`;
-      console.error('There was an error!', error);
+  if (!spectatorMode) {
+    document.getElementById("draw-button").addEventListener("click", () => {
+      fetch(`${apiURL}/draw?sessionid=${sessionid}&playerid=${playerid}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+    
+        // check for error response
+        if (!response.ok) {
+          // get error message from body or default to response status
+          const error = (data && data.message) || response.status;
+          return Promise.reject(error);
+        }
+    
+        receiveData(data);
+      })
+      .catch(error => {
+        //todo element.parentElement.innerHTML = `Error: ${error}`;
+        console.error('There was an error!', error);
+      });
     });
-  });
+
+    document.getElementById("return-all-cards").addEventListener("click", () => {
+      fetch(`${apiURL}/returnAll?sessionid=${sessionid}&playerid=${playerid}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+    
+        // check for error response
+        if (!response.ok) {
+          // get error message from body or default to response status
+          const error = (data && data.message) || response.status;
+          return Promise.reject(error);
+        }
+    
+        receiveData(data);
+      })
+      .catch(error => {
+        //todo element.parentElement.innerHTML = `Error: ${error}`;
+        console.error('There was an error!', error);
+      });
+    });
+  } else {
+    document.getElementById('draw-button').style.display = 'none';
+    document.getElementById('spectator-controls').style.display = 'flex';
+    var changeSeatFunction = (direction) => {
+      fetch(`${apiURL}/spectateSeat?sessionid=${sessionid}&playerid=${playerid}&direction=${direction}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(async response => {
+        const isJson = response.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await response.json() : null;
+    
+        // check for error response
+        if (!response.ok) {
+          // get error message from body or default to response status
+          const error = (data && data.message) || response.status;
+          return Promise.reject(error);
+        }
+    
+        receiveData(data);
+      })
+      .catch(error => {
+        //todo element.parentElement.innerHTML = `Error: ${error}`;
+        console.error('There was an error!', error);
+      });
+    }
+    document.getElementById("spectate-left").addEventListener("click", () => changeSeatFunction('left'));
+    document.getElementById("spectate-right").addEventListener("click", () => changeSeatFunction('right'));
+  }
 }
 
 playCard = (card) => {

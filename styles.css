@@ -105,6 +105,22 @@
   left: 0;
 }
 
+.own-card-beta::before {
+  z-index: 1;
+  content: "β";
+  font-weight: bolder;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-size: 20px;
+  padding: 0 9px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: white;
+  background-color: black;
+}
+
 .card-actions {
   grid-template-columns: 3fr 1fr;
   user-select: none;
@@ -269,6 +285,35 @@
 .seat-select {
   /* position: absolute; */
   display: none;
+}
+
+.beta-field {
+  background-color: #343a40;
+  margin-top: 10px;
+  border-radius: 4px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 32px;
+  font-size: 14px;
+}
+
+.beta-field label {
+  margin: 0;
+}
+
+.spectator-controls {
+  justify-content: space-around;
+}
+
+.spectator-controls button {
+  width: 80px!important;
+}
+
+#spectating-name {
+  display: none;
+  color: white;
 }
 
 @media screen and (max-width: 1366px) {
